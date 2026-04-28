@@ -4,6 +4,7 @@ app.py
 AI Research Assistant — Streamlit UI
 """
 import os
+import time
 import streamlit as st
 from core.graph import research_graph
 
@@ -99,19 +100,56 @@ if "running" not in st.session_state:
     st.session_state.running = False
 if "report" not in st.session_state:
     st.session_state.report = ""
+if "trials_left" not in st.session_state:
+    st.session_state.trials_left = 5
+if "last_run_time" not in st.session_state:
+    st.session_state.last_run_time = 0
 
 st.title("AI Research Assistant")
 st.markdown("<p style='color: #6B705C; font-size: 16px; margin-bottom: 4px;'>Calm, structured insights with real sources</p>", unsafe_allow_html=True)
 st.markdown("<p style='font-size: 13px; color: #A5A58D; margin-bottom: 24px;'>Made using LangGraph, Tavily, and Groq</p>", unsafe_allow_html=True)
 
 # UI Inputs
+badge_color = "#8da77a"
+if st.session_state.trials_left <= 2:
+    badge_color = "#c9a86a"
+if st.session_state.trials_left == 0:
+    badge_color = "#d46a6a"
+
+st.markdown(f'''
+<div style="
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background-color: {badge_color}20;
+    color: {badge_color};
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid {badge_color}40;
+    margin-bottom: 10px;
+">
+    🧪 {st.session_state.trials_left} trials left
+</div>
+''', unsafe_allow_html=True)
+
 query = st.text_area("Research Topic", placeholder="e.g. The impact of AI on healthcare...", disabled=st.session_state.running)
 
-run_btn = st.button("Generate Report", disabled=st.session_state.running)
+run_btn = st.button("Generate Report", disabled=st.session_state.running or st.session_state.trials_left <= 0)
 debug_mode = st.checkbox("Show Debug Output", value=False)
 
 # Execution
 if run_btn and query.strip():
+    current_time = time.time()
+    
+    if st.session_state.trials_left <= 0:
+        st.error("Trial limit reached")
+        st.stop()
+        
+    if current_time - st.session_state.last_run_time < 12:
+        remaining = int(12 - (current_time - st.session_state.last_run_time))
+        st.warning(f"Wait {remaining}s before next run")
+        st.stop()
+
     st.session_state.running = True
     st.session_state.report = ""
     
@@ -142,6 +180,8 @@ if run_btn and query.strip():
                 st.session_state.report = event[node_name]["final_report"]
                 
         status_placeholder.success("✅ Research complete!")
+        st.session_state.trials_left -= 1
+        st.session_state.last_run_time = time.time()
         
     except Exception as e:
         status_placeholder.error(f"❌ Pipeline failed: {str(e)}")
