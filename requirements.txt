@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────
+# AI Research Assistant — Dependencies
+# ─────────────────────────────────────────────
+
+# LangGraph orchestration
+langgraph>=0.2.0
+
+# Groq API (replaces Gemini)
+groq>=0.9.0
+
+# Tavily search API
+tavily-python>=0.3.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Streamlit UI
+streamlit>=1.35.0
+
+# Testing
+pytest>=8.0.0
+
+# PDF generation
+reportlab>=4.0.0
