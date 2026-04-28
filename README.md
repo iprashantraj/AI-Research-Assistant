@@ -8,6 +8,8 @@ Built using LangGraph, Groq, and Tavily, this system plans, searches, filters, a
 
  https://ai-research-assistant-prashant.streamlit.app/
 
+![Demo](assets/demo.webp)
+
 ✨ What Makes It Different
 
 Unlike basic LLM wrappers, this project uses a structured reasoning pipeline:
